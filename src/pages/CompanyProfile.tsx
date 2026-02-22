@@ -6,7 +6,7 @@ import FundingTimeline from '@/components/FundingTimeline';
 import SignalsTimeline from '@/components/SignalsTimeline';
 import AnalysisLogs from '@/components/AnalysisLogs';
 import CompanyNotes from '@/components/CompanyNotes';
-import { getCompanyById, ENRICHMENT_DATA } from '@/data/companies';
+import { getCompanyById } from '@/data/companies';
 import { useLists } from '@/hooks/use-lists';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -39,34 +39,70 @@ export default function CompanyProfile() {
 
   const handleEnrich = async () => {
     setEnriching(true);
-    toast.info('Enriching company data...');
-    await new Promise(r => setTimeout(r, 2000));
+    toast.info('Enriching company data — scraping website & analyzing with AI...');
 
-    const data = ENRICHMENT_DATA[company.id];
-    if (data) {
-      setEnrichment({
-        ...data,
-        sources: [
-          { url: company.website, scrapedAt: new Date().toISOString() },
-          { url: `${company.website}/about`, scrapedAt: new Date().toISOString() },
-        ],
-      });
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/enrich-company`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            companyName: company.name,
+            companyWebsite: company.website,
+            companyDescription: company.description,
+            industry: company.industry,
+            stage: company.stage,
+            location: company.location,
+          }),
+        }
+      );
+
+      if (response.status === 429) {
+        toast.error('AI rate limit exceeded. Please try again in a moment.');
+        setEnriching(false);
+        return;
+      }
+      if (response.status === 402) {
+        toast.error('AI usage limit reached. Please add credits to your workspace.');
+        setEnriching(false);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.enrichment) {
+        setEnrichment(data.enrichment);
+        setExtraLogs(prev => [{
+          timestamp: new Date().toISOString(),
+          provider: 'Lovable AI (Gemini)',
+          status: 'success' as const,
+          sources: data.enrichment.sources?.map((s: { url: string }) => s.url) || [company.website],
+        }, ...prev]);
+        toast.success('Enrichment complete!');
+      } else {
+        setExtraLogs(prev => [{
+          timestamp: new Date().toISOString(),
+          provider: 'Lovable AI (Gemini)',
+          status: 'partial' as const,
+          sources: [company.website],
+        }, ...prev]);
+        toast.warning(data.error || 'Partial enrichment — limited data available.');
+      }
+    } catch (err) {
+      console.error('Enrichment error:', err);
       setExtraLogs(prev => [{
         timestamp: new Date().toISOString(),
-        provider: 'VentureLens AI',
-        status: 'success' as const,
-        sources: [company.website, `${company.website}/about`, `${company.website}/careers`],
-      }, ...prev]);
-      toast.success('Enrichment complete!');
-    } else {
-      setExtraLogs(prev => [{
-        timestamp: new Date().toISOString(),
-        provider: 'VentureLens AI',
-        status: 'partial' as const,
+        provider: 'Lovable AI (Gemini)',
+        status: 'failed' as const,
         sources: [company.website],
       }, ...prev]);
-      toast.warning('Partial enrichment — limited data available for this company.');
+      toast.error('Enrichment failed. Please try again.');
     }
+
     setEnriching(false);
   };
 
