@@ -30,7 +30,7 @@ export default function Index() {
           </div>
           <h1 className="text-5xl font-display font-bold leading-tight mb-4">
             Intelligence for
-            <span className="gradient-primary bg-clip-text text-transparent"> smarter deals</span>
+            <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, hsl(213, 94%, 55%), hsl(230, 90%, 65%))' }}> smarter deals</span>
           </h1>
           <p className="text-lg text-muted-foreground mb-8">
             Discover, enrich, analyze, and track high-potential companies with AI-powered signal intelligence.
