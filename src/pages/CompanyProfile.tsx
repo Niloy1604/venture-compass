@@ -106,16 +106,18 @@ export default function CompanyProfile() {
     setEnriching(false);
   };
 
-  const handleSaveToList = (listId: string) => {
+  const handleSaveToList = async (listId: string) => {
     if (listId === '__new__') {
       const name = prompt('New list name:');
       if (name) {
-        const list = createList(name);
-        addToList(list.id, company.id);
-        toast.success(`Saved to "${name}"`);
+        const list = await createList(name);
+        if (list) {
+          await addToList(list.id, company.id);
+          toast.success(`Saved to "${name}"`);
+        }
       }
     } else {
-      addToList(listId, company.id);
+      await addToList(listId, company.id);
       toast.success('Saved to list');
     }
   };

@@ -1,24 +1,41 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useLists } from '@/hooks/use-lists';
+import { useAuth } from '@/contexts/AuthContext';
 import { getCompanyById } from '@/data/companies';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Plus, Trash2, Download, List, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Download, List, ExternalLink, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function ListsPage() {
+  const { user } = useAuth();
   const { lists, createList, removeFromList, deleteList } = useLists();
   const [newListName, setNewListName] = useState('');
   const navigate = useNavigate();
 
-  const handleCreate = (e: React.FormEvent) => {
+  if (!user) {
+    return (
+      <Layout>
+        <div className="container py-16 text-center">
+          <List className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+          <h1 className="text-2xl font-display font-bold mb-2">Sign in to manage lists</h1>
+          <p className="text-muted-foreground mb-6">Create and organize your deal pipeline with saved lists.</p>
+          <Link to="/auth">
+            <Button><LogIn className="h-4 w-4 mr-2" /> Sign In</Button>
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
+
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newListName.trim()) {
-      createList(newListName.trim());
+      await createList(newListName.trim());
       setNewListName('');
       toast.success('List created');
     }
@@ -105,7 +122,7 @@ export default function ListsPage() {
                     <Button size="sm" variant="outline" onClick={() => handleExport(list.id, 'json')} disabled={!list.companyIds.length}>
                       <Download className="h-3.5 w-3.5 mr-1" /> JSON
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => { deleteList(list.id); toast.success('List deleted'); }}>
+                    <Button size="sm" variant="ghost" onClick={async () => { await deleteList(list.id); toast.success('List deleted'); }}>
                       <Trash2 className="h-3.5 w-3.5 text-destructive" />
                     </Button>
                   </div>
@@ -128,7 +145,7 @@ export default function ListsPage() {
                           <div className="flex items-center gap-2">
                             <Badge variant="outline" className="text-xs">{c.stage}</Badge>
                             <button
-                              onClick={() => { removeFromList(list.id, cId); toast.success('Removed'); }}
+                              onClick={async () => { await removeFromList(list.id, cId); toast.success('Removed'); }}
                               className="text-muted-foreground hover:text-destructive transition-colors"
                             >
                               <Trash2 className="h-3.5 w-3.5" />

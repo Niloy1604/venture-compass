@@ -1,19 +1,29 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Compass, List, Zap } from 'lucide-react';
+import { Search, Compass, List, Zap, LogIn, LogOut, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [searchValue, setSearchValue] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchValue.trim()) {
       navigate(`/discover?q=${encodeURIComponent(searchValue.trim())}`);
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('Signed out');
+    navigate('/');
   };
 
   const navItems = [
@@ -62,6 +72,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               );
             })}
+
+            {user ? (
+              <div className="flex items-center gap-2 ml-2">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <User className="h-3.5 w-3.5" />
+                  {user.email?.split('@')[0]}
+                </span>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="ml-2">
+                  <LogIn className="h-4 w-4 mr-1" /> Sign In
+                </Button>
+              </Link>
+            )}
           </nav>
         </div>
       </header>
