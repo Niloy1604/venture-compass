@@ -1,18 +1,33 @@
-# Welcome to your Lovable project
+Venture-Compass
+A thesis-driven venture sourcing platform that helps investors discover, analyze, and track high-potential companies with AI-powered signal intelligence.
 
-## Project info
+#Features 
+Discover - Filter companies by industry, funding stage, and thesis match
+AI Enrichment - One-click company intelligence powered by AI
+Signal Scoring - Rank companies by funding activity, growth signals, and thesis fit
+Lists & Export - Save, organize, and export your deal pipeline (CSV/JSON)
+Company Profiles - Deep dive into company metrics, funding rounds, and signals
+Search - Powerful full-text search across all companies
+Responsive Design - Works seamlessly on desktop and mobile devices
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
-## How can I edit this code?
+Industry segments
+Funding stages (Seed, Series A, B, C, etc.)
+Custom sorting (Score, Name, Funding Rounds)
+Company Profiles
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
+View comprehensive company data including:
+Funding history and rounds
+Company signals and metrics
+Timeline of activities
+Score breakdown
+External links and location
+Lists Management
+Create custom company lists
+Add/remove companies from lists
+Export lists as CSV or JSON
+Track deal pipeline progress
+Authentication
 
 **Use your preferred IDE**
 
@@ -59,15 +74,3 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
